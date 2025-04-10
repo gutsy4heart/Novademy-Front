@@ -1,0 +1,120 @@
+.pricing {
+  padding: 4rem 2rem;
+  background: white;
+  text-align: center;
+}
+
+.pricing h2 {
+  font-size: 2.5rem;
+  color: #1A202C;
+  margin-bottom: 3rem;
+  font-weight: 700;
+}
+
+.pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pricing-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
+  transition: transform 0.3s ease;
+  border: 1px solid #E2E8F0;
+}
+
+.pricing-card:hover {
+  transform: translateY(-5px);
+}
+
+.pricing-card.featured {
+  border: 2px solid #E31C79;
+  transform: scale(1.05);
+}
+
+.pricing-card.featured:hover {
+  transform: scale(1.05) translateY(-5px);
+}
+
+.pricing-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #E31C79;
+  color: white;
+  padding: 0.25rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.pricing-header {
+  margin-bottom: 2rem;
+}
+
+.pricing-header h3 {
+  font-size: 2.5rem;
+  color: #2D3748;
+  margin: 0;
+  font-weight: 700;
+}
+
+.pricing-header p {
+  color: #718096;
+  margin: 0.5rem 0 0 0;
+  font-size: 1.125rem;
+}
+
+.pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+
+.pricing-features li {
+  color: #4A5568;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.pricing-features li:last-child {
+  border-bottom: none;
+}
+
+.pricing-button {
+  background: #E31C79;
+  color: white;
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.pricing-button:hover {
+  background: #C81269;
+}
+
+@media (max-width: 768px) {
+  .pricing {
+    padding: 3rem 1rem;
+  }
+
+  .pricing-card.featured {
+    transform: none;
+  }
+
+  .pricing-card.featured:hover {
+    transform: translateY(-5px);
+  }
+} 
