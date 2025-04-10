@@ -10,8 +10,8 @@ const Navbar: React.FC = () => {
           novademy
         </Link>
         <div className="navbar-buttons">
-          <button className="navbar-button login">Giriş</button>
-          <button className="navbar-button register">Qeydiyyat</button>
+          <Link to="/login" className="navbar-button login">Giriş</Link>
+          <Link to="/register" className="navbar-button register">Qeydiyyat</Link>
         </div>
       </div>
     </nav>
