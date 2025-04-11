@@ -1,12 +1,13 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://localhost:7258/api/v1';
+const BASE_URL = 'http://localhost:7258/api/v1';
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Добавляем интерцептор для обработки токена авторизации
