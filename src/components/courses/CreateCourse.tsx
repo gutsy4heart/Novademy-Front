@@ -1,32 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CreateCourseData, SubjectType, courseService } from '../../api/courseService';
+import { CreateCourseData, SubjectType, createCourse } from '../../services/courseService';
 
 const CreateCourse: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<CreateCourseData>({
     title: '',
     description: '',
-    subject: SubjectType.Math,
-    image: undefined
+    price: 0,
+    subject: SubjectType.MATH,
+    status: 'Draft'
   });
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await courseService.createCourse(formData);
+      await createCourse(formData);
       navigate('/courses');
     } catch (err) {
-      setError('Ошибка при создании курса');
-      console.error(err);
+      console.error('Error creating course:', err);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData({ ...formData, image: e.target.files[0] });
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    
+    setFormData({
+      ...formData,
+      [name]: name === 'price' ? parseFloat(value) : value
+    });
   };
 
   return (
@@ -39,8 +42,9 @@ const CreateCourse: React.FC = () => {
           <input
             type="text"
             id="title"
+            name="title"
             value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            onChange={handleChange}
             required
           />
         </div>
@@ -49,18 +53,47 @@ const CreateCourse: React.FC = () => {
           <label htmlFor="description">Описание</label>
           <textarea
             id="description"
+            name="description"
             value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            onChange={handleChange}
             required
           />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="price">Цена</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="status">Статус</label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            required
+          >
+            <option value="Draft">Черновик</option>
+            <option value="Published">Опубликован</option>
+            <option value="Archived">Архивирован</option>
+          </select>
         </div>
 
         <div className="form-group">
           <label htmlFor="subject">Предмет</label>
           <select
             id="subject"
+            name="subject"
             value={formData.subject}
-            onChange={(e) => setFormData({ ...formData, subject: e.target.value as SubjectType })}
+            onChange={handleChange}
             required
           >
             {Object.values(SubjectType).map((subject) => (
@@ -69,16 +102,6 @@ const CreateCourse: React.FC = () => {
               </option>
             ))}
           </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="image">Изображение</label>
-          <input
-            type="file"
-            id="image"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
         </div>
 
         <button type="submit">Создать курс</button>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { logout } from '../../services/authService';
 import './Admin.css';
 
 const AdminLayout: React.FC = () => {
@@ -7,6 +8,10 @@ const AdminLayout: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     return location.pathname.startsWith(`/admin${path}`);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -65,7 +70,9 @@ const AdminLayout: React.FC = () => {
           <div className="admin-header-content">
             <h2>Admin Panel</h2>
             <div className="admin-user-menu">
-              <button className="logout-button">Çıxış</button>
+              <button className="logout-button" onClick={handleLogout}>
+                Çıxış
+              </button>
             </div>
           </div>
         </header>

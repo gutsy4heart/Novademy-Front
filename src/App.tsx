@@ -12,6 +12,7 @@ import Register from './components/auth/Register';
 import AuthCode from './components/auth/AuthCode';
 import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './components/admin/Dashboard';
+import AdminCourseList from './components/admin/courses/CourseList';
 import CourseForm from './components/admin/courses/CourseForm';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
@@ -77,14 +78,12 @@ const App: React.FC = () => {
           <Route
             path="/admin"
             element={
-              <ProtectedRoute requiredRole="Admin">
-                <AdminLayout />
-              </ProtectedRoute>
+              <AdminLayout />
             }
           >
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="courses" element={<CourseList />} />
+            <Route path="courses" element={<AdminCourseList />} />
             <Route path="courses/new" element={<CourseForm />} />
             <Route path="courses/:id/edit" element={<CourseForm />} />
           </Route>

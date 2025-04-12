@@ -1,6 +1,6 @@
 import apiClient from '../api/apiClient';
 
-interface RegisterData {
+export interface RegisterData {
   username: string;
   password: string;
   firstName: string;
@@ -12,40 +12,38 @@ interface RegisterData {
   sector: number;
 }
 
-export const register = async (data: RegisterData) => {
-  try {
-    const response = await apiClient.post('/auth/register', data);
-    return response.data;
-  } catch (error) {
-    const apiError = error as any;
-    
-    if (apiError.response?.data?.errors) {
-      // Преобразуем ошибки валидации в читаемый формат
-      const errorMessages = Object.entries(apiError.response.data.errors)
-        .map(([field, messages]) => {
-          // Преобразуем названия полей в читаемый формат
-          const fieldNames: Record<string, string> = {
-            firstName: 'Ad',
-            lastName: 'Soyad',
-            email: 'Email',
-            phoneNumber: 'Mobil nömrə',
-            password: 'Şifrə'
-          };
-          const fieldName = fieldNames[field] || field;
-          return `${fieldName}: ${(messages as string[]).join(', ')}`;
-        })
-        .join('\n');
-      throw new Error(errorMessages);
-    }
-    
-    if (apiError.response?.data?.message) {
-      throw new Error(apiError.response.data.message);
-    }
-    
-    if (apiError.response?.status === 500) {
-      throw new Error('Server xətası. Zəhmət olmasa bir az sonra yenidən cəhd edin.');
-    }
-    
-    throw new Error('Qeydiyyat zamanı xəta baş verdi. Zəhmət olmasa bir az sonra yenidən cəhd edin.');
-  }
+interface AuthResponse {
+  token: string;
+  user: {
+    id: string;
+    role: string;
+  };
+}
+
+export const register = async (data: RegisterData): Promise<void> => {
+  await apiClient.post('/auth/register', data);
+};
+
+export const login = async (username: string, password: string): Promise<string> => {
+  const response = await apiClient.post<AuthResponse>('/auth/login', { username, password });
+  const { token, user } = response.data as AuthResponse;
+  localStorage.setItem('token', token);
+  localStorage.setItem('userRole', user.role);
+  localStorage.setItem('userId', user.id);
+  return token;
+};
+
+export const logout = (): void => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('userId');
+  window.location.href = '/login';
+};
+
+export const isAuthenticated = (): boolean => {
+  return !!localStorage.getItem('token');
+};
+
+export const isAdmin = (): boolean => {
+  return localStorage.getItem('userRole') === 'admin';
 }; 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Course, courseService } from '../../api/courseService';
+import { Course, getCourses } from '../../services/courseService';
 import CourseCard from './CourseCard';
 
 const CourseList: React.FC = () => {
@@ -10,7 +10,7 @@ const CourseList: React.FC = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const data = await courseService.getAllCourses();
+        const data = await getCourses();
         setCourses(data);
       } catch (err) {
         setError('Ошибка при загрузке курсов');

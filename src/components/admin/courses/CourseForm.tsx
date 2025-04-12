@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createCourse, updateCourse, getCourse } from '../../../services/courseService';
+import { createCourse, updateCourse, getCourse, SubjectType } from '../../../services/courseService';
 
 interface CourseFormData {
   title: string;
   description: string;
   price: number;
   status: string;
+  subject: SubjectType;
 }
 
 const initialFormData: CourseFormData = {
   title: '',
   description: '',
   price: 0,
-  status: 'Draft'
+  status: 'Draft',
+  subject: SubjectType.MATH
 };
 
 const CourseForm: React.FC = () => {
@@ -37,7 +39,8 @@ const CourseForm: React.FC = () => {
         title: course.title,
         description: course.description,
         price: course.price,
-        status: course.status
+        status: course.status,
+        subject: course.subject
       });
     } catch (err: any) {
       setError(err.message);
@@ -136,6 +139,23 @@ const CourseForm: React.FC = () => {
             <option value="Draft">Qaralama</option>
             <option value="Published">Dərc edilib</option>
             <option value="Archived">Arxivləşdirilib</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="subject">Fənn</label>
+          <select
+            id="subject"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            required
+          >
+            {Object.values(SubjectType).map(subject => (
+              <option key={subject} value={subject}>
+                {subject}
+              </option>
+            ))}
           </select>
         </div>
 

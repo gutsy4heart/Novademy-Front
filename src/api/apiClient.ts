@@ -1,20 +1,16 @@
 import axios from 'axios';
 
-const BASE_URL = 'http://localhost:5258/api/v1';
-
 const apiClient = axios.create({
-  baseURL: BASE_URL,
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001/api',
   headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
+    'Content-Type': 'application/json'
+  }
 });
 
 // Добавляем интерцептор для обработки токена авторизации
-apiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use(config => {
   const token = localStorage.getItem('token');
-  if (token) {
-    config.headers = config.headers || {};
+  if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

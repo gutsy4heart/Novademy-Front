@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Course, SubjectType } from '../../api/courseService';
+import { Course } from '../../services/courseService';
 
 interface CourseCardProps {
   course: Course;
@@ -9,15 +9,15 @@ interface CourseCardProps {
 const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
   return (
     <div className="course-card">
-      {course.imageUrl && (
-        <img src={course.imageUrl} alt={course.title} className="course-image" />
-      )}
-      <div className="course-content">
+      <div className="course-info">
         <h3>{course.title}</h3>
-        <p className="subject">{SubjectType[course.subject]}</p>
-        <p className="description">{course.description}</p>
-        <Link to={`/courses/${course.id}`} className="view-course">
-          Перейти к курсу
+        <p>{course.description}</p>
+        <div className="course-meta">
+          <span className="price">{course.price} AZN</span>
+          <span className="subject">{course.subject}</span>
+        </div>
+        <Link to={`/courses/${course.id}`} className="btn-details">
+          Подробнее
         </Link>
       </div>
     </div>
