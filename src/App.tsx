@@ -10,6 +10,10 @@ import Footer from './components/layout/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import AuthCode from './components/auth/AuthCode';
+import AdminLayout from './components/admin/AdminLayout';
+import Dashboard from './components/admin/Dashboard';
+import CourseForm from './components/admin/courses/CourseForm';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
 const LandingPage: React.FC = () => {
@@ -68,6 +72,22 @@ const App: React.FC = () => {
               <div>Профиль</div>
             </MainLayout>
           } />
+
+          {/* Admin routes */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute requiredRole="Admin">
+                <AdminLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="courses" element={<CourseList />} />
+            <Route path="courses/new" element={<CourseForm />} />
+            <Route path="courses/:id/edit" element={<CourseForm />} />
+          </Route>
         </Routes>
       </div>
     </Router>
