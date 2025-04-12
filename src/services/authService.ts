@@ -1,21 +1,15 @@
 import apiClient from '../api/apiClient';
 
 interface RegisterData {
+  username: string;
+  password: string;
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
-  password: string;
-}
-
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string;
-      errors?: Record<string, string[]>;
-    };
-    status?: number;
-  };
+  phoneNumber: string;
+  roleId: number;
+  group: number;
+  sector: number;
 }
 
 export const register = async (data: RegisterData) => {
@@ -23,7 +17,7 @@ export const register = async (data: RegisterData) => {
     const response = await apiClient.post('/auth/register', data);
     return response.data;
   } catch (error) {
-    const apiError = error as ApiError;
+    const apiError = error as any;
     
     if (apiError.response?.data?.errors) {
       // Преобразуем ошибки валидации в читаемый формат
@@ -34,11 +28,11 @@ export const register = async (data: RegisterData) => {
             firstName: 'Ad',
             lastName: 'Soyad',
             email: 'Email',
-            phone: 'Mobil nömrə',
+            phoneNumber: 'Mobil nömrə',
             password: 'Şifrə'
           };
           const fieldName = fieldNames[field] || field;
-          return `${fieldName}: ${messages.join(', ')}`;
+          return `${fieldName}: ${(messages as string[]).join(', ')}`;
         })
         .join('\n');
       throw new Error(errorMessages);

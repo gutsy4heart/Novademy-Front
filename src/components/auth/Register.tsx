@@ -28,7 +28,18 @@ const Register: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const { confirmPassword, ...registrationData } = formData;
+      const registrationData = {
+        username: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: `+994${formData.phone}`,
+        roleId: 2,
+        group: 0,
+        sector: 0
+      };
+      
       await register(registrationData);
       navigate('/auth-code', { state: { email: formData.email } });
     } catch (err: any) {
