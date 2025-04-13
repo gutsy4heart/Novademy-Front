@@ -20,6 +20,7 @@ import QuizList from './components/admin/quizzes/QuizList';
 import PackageList from './components/admin/packages/PackageList';
 import LessonPlayer from './components/lessons/LessonPlayer';
 import QuizPlayer from './components/quizzes/QuizPlayer';
+import Profile from './components/profile/Profile';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
@@ -76,7 +77,7 @@ const App: React.FC = () => {
           } />
           <Route path="/profile" element={
             <MainLayout>
-              <div>Профиль</div>
+              <Profile />
             </MainLayout>
           } />
 
