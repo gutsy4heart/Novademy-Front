@@ -14,6 +14,12 @@ import AdminLayout from './components/admin/AdminLayout';
 import Dashboard from './components/admin/Dashboard';
 import AdminCourseList from './components/admin/courses/CourseList';
 import CourseForm from './components/admin/courses/CourseForm';
+import LessonList from './components/admin/lessons/LessonList';
+import LessonForm from './components/admin/lessons/LessonForm';
+import QuizList from './components/admin/quizzes/QuizList';
+import PackageList from './components/admin/packages/PackageList';
+import LessonPlayer from './components/lessons/LessonPlayer';
+import QuizPlayer from './components/quizzes/QuizPlayer';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
@@ -74,6 +80,10 @@ const App: React.FC = () => {
             </MainLayout>
           } />
 
+          {/* Lesson and Quiz Player Routes */}
+          <Route path="/lessons/:id" element={<LessonPlayer />} />
+          <Route path="/quizzes/:id" element={<QuizPlayer />} />
+
           {/* Admin routes */}
           <Route
             path="/admin"
@@ -83,9 +93,26 @@ const App: React.FC = () => {
           >
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
+            
+            {/* Course routes */}
             <Route path="courses" element={<AdminCourseList />} />
             <Route path="courses/new" element={<CourseForm />} />
             <Route path="courses/:id/edit" element={<CourseForm />} />
+            
+            {/* Lesson routes */}
+            <Route path="lessons" element={<LessonList />} />
+            <Route path="lessons/new" element={<LessonForm />} />
+            <Route path="lessons/:id/edit" element={<LessonForm />} />
+            <Route path="courses/:courseId/lessons" element={<LessonList />} />
+            <Route path="courses/:courseId/lessons/new" element={<LessonForm />} />
+            
+            {/* Quiz routes */}
+            <Route path="quizzes" element={<QuizList />} />
+            <Route path="courses/:courseId/quizzes" element={<QuizList />} />
+            <Route path="lessons/:lessonId/quizzes" element={<QuizList />} />
+            
+            {/* Package routes */}
+            <Route path="packages" element={<PackageList />} />
           </Route>
         </Routes>
       </div>
