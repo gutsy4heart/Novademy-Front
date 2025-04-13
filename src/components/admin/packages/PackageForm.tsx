@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Lesson, getLesson, createLesson, updateLesson, CreateLessonData } from '../../../services/lessonService';
+import { CoursePackage, getPackage, createPackage, updatePackage, CreatePackageData } from '../../../services/packageService';
 import { getCourses } from '../../../services/courseService';
 import '../../admin/Admin.css';
 
@@ -9,17 +9,18 @@ interface CourseOption {
   title: string;
 }
 
-const LessonForm: React.FC = () => {
+const PackageForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  const [formData, setFormData] = useState<CreateLessonData>({
+  const [formData, setFormData] = useState<CreatePackageData>({
     title: '',
     description: '',
-    courseId: '',
-    videoUrl: '',
-    content: '',
-    order: 0
+    price: 0,
+    courseIds: [],
+    discount: 0,
+    duration: 30,
+    status: 'active'
   });
   
   const [courses, setCourses] = useState<CourseOption[]>([]);
@@ -31,23 +32,24 @@ const LessonForm: React.FC = () => {
     const loadData = async () => {
       try {
         setLoading(true);
-        // Load available courses for dropdown
+        // Load available courses for multiselect
         const coursesData = await getCourses();
         setCourses(coursesData.map(course => ({
           id: course.id,
           title: course.title
         })));
         
-        // If ID is provided, load lesson data for editing
+        // If ID is provided, load package data for editing
         if (id && id !== 'new') {
-          const lesson = await getLesson(id);
+          const packageData = await getPackage(id);
           setFormData({
-            title: lesson.title,
-            description: lesson.description,
-            courseId: lesson.courseId,
-            videoUrl: lesson.videoUrl || '',
-            content: lesson.content || '',
-            order: lesson.order
+            title: packageData.title,
+            description: packageData.description,
+            price: packageData.price,
+            courseIds: packageData.courseIds,
+            discount: packageData.discount,
+            duration: packageData.duration,
+            status: packageData.status
           });
         }
         
@@ -64,9 +66,25 @@ const LessonForm: React.FC = () => {
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
+    if (name === 'price' || name === 'discount' || name === 'duration') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: parseFloat(value) || 0
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+  
+  const handleCourseSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'order' ? parseInt(value) || 0 : value
+      courseIds: selectedOptions
     }));
   };
   
@@ -76,14 +94,14 @@ const LessonForm: React.FC = () => {
       setSaving(true);
       
       if (id && id !== 'new') {
-        await updateLesson(id, formData);
+        await updatePackage(id, formData);
       } else {
-        await createLesson(formData);
+        await createPackage(formData);
       }
       
-      navigate('/admin/lessons');
+      navigate('/admin/packages');
     } catch (err: any) {
-      setError(err.message || 'Failed to save lesson');
+      setError(err.message || 'Failed to save package');
       setSaving(false);
     }
   };
@@ -95,7 +113,7 @@ const LessonForm: React.FC = () => {
   return (
     <div className="admin-content">
       <div className="page-header">
-        <h1>{id && id !== 'new' ? 'Dərsi düzəliş et' : 'Yeni dərs əlavə et'}</h1>
+        <h1>{id && id !== 'new' ? 'Paketi düzəliş et' : 'Yeni paket əlavə et'}</h1>
       </div>
       
       {error && <div className="error-message">{error}</div>}
@@ -125,62 +143,84 @@ const LessonForm: React.FC = () => {
         </div>
         
         <div className="form-group">
-          <label htmlFor="courseId">Kurs</label>
-          <select
-            id="courseId"
-            name="courseId"
-            value={formData.courseId}
+          <label htmlFor="price">Qiymət (AZN)</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            value={formData.price}
             onChange={handleChange}
+            min="0"
+            step="0.01"
             required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="discount">Endirim (%)</label>
+          <input
+            type="number"
+            id="discount"
+            name="discount"
+            value={formData.discount}
+            onChange={handleChange}
+            min="0"
+            max="100"
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="duration">Müddət (gün)</label>
+          <input
+            type="number"
+            id="duration"
+            name="duration"
+            value={formData.duration}
+            onChange={handleChange}
+            min="1"
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="courseIds">Kurslar</label>
+          <select
+            id="courseIds"
+            name="courseIds"
+            multiple
+            value={formData.courseIds}
+            onChange={handleCourseSelection}
+            required
+            size={5}
           >
-            <option value="">Kurs seçin</option>
             {courses.map(course => (
               <option key={course.id} value={course.id}>
                 {course.title}
               </option>
             ))}
           </select>
+          <small>Ctrl və ya Cmd düyməsi ilə bir neçə kurs seçə bilərsiniz.</small>
         </div>
         
         <div className="form-group">
-          <label htmlFor="videoUrl">Video URL (ixtiyari)</label>
-          <input
-            type="text"
-            id="videoUrl"
-            name="videoUrl"
-            value={formData.videoUrl}
+          <label htmlFor="status">Status</label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
             onChange={handleChange}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="content">Məzmun (ixtiyari)</label>
-          <textarea
-            id="content"
-            name="content"
-            value={formData.content}
-            onChange={handleChange}
-            rows={10}
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="order">Sıra</label>
-          <input
-            type="number"
-            id="order"
-            name="order"
-            value={formData.order}
-            onChange={handleChange}
-            min="0"
             required
-          />
+          >
+            <option value="active">Aktiv</option>
+            <option value="inactive">Deaktiv</option>
+          </select>
         </div>
         
         <div className="form-buttons">
           <button 
             type="button" 
-            onClick={() => navigate('/admin/lessons')} 
+            onClick={() => navigate('/admin/packages')} 
             className="btn-secondary"
           >
             Geri qayıt
@@ -198,4 +238,4 @@ const LessonForm: React.FC = () => {
   );
 };
 
-export default LessonForm; 
+export default PackageForm; 

@@ -163,7 +163,8 @@
   font-size: 14px;
 }
 
-.form-group input {
+.form-group input,
+.form-group select {
   width: 100%;
   padding: 10px 15px;
   border: 1px solid #ddd;
@@ -172,12 +173,14 @@
   transition: border-color 0.2s;
 }
 
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   border-color: #6a11cb;
   outline: none;
 }
 
-.form-group input:disabled {
+.form-group input:disabled,
+.form-group select:disabled {
   background-color: #f9f9f9;
   cursor: not-allowed;
 }

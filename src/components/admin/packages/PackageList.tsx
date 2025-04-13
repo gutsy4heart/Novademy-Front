@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getPackages, deletePackage } from '../../../services/packageService';
-import { CoursePackage } from '../../../services/packageService';
+import { Link, useNavigate } from 'react-router-dom';
+import { CoursePackage, getPackages, deletePackage } from '../../../services/packageService';
+import '../../admin/Admin.css';
 
 const PackageList: React.FC = () => {
   const [packages, setPackages] = useState<CoursePackage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadPackages();
@@ -14,88 +15,86 @@ const PackageList: React.FC = () => {
 
   const loadPackages = async () => {
     try {
+      setLoading(true);
       const data = await getPackages();
       setPackages(data);
+      setError(null);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Failed to load packages');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Вы уверены, что хотите удалить этот пакет курсов?')) {
+    if (window.confirm('Bu paketi silmək istədiyinizdən əminsinizmi?')) {
       try {
         await deletePackage(id);
         setPackages(packages.filter(pkg => pkg.id !== id));
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || 'Failed to delete package');
       }
     }
   };
 
-  if (isLoading) {
-    return <div>Загрузка...</div>;
-  }
-
-  if (error) {
-    return <div className="error-message">{error}</div>;
+  if (loading) {
+    return <div className="loading">Loading...</div>;
   }
 
   return (
-    <div>
+    <div className="admin-content">
       <div className="page-header">
-        <h1>Пакеты курсов</h1>
-        <Link to="/admin/packages/new" className="btn btn-primary">
-          Новый пакет
-        </Link>
+        <h1>Paketlər</h1>
+        <Link to="/admin/packages/new" className="btn-primary">Yeni paket əlavə et</Link>
       </div>
 
-      {packages.length === 0 ? (
-        <p>Пакеты не найдены</p>
-      ) : (
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="table-container">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Название</th>
-              <th>Описание</th>
-              <th>Цена</th>
-              <th>Скидка</th>
-              <th>Длительность</th>
-              <th>Статус</th>
-              <th>Действия</th>
+              <th>Başlıq</th>
+              <th>Qiymət</th>
+              <th>Endirim</th>
+              <th>Müddət</th>
+              <th>Status</th>
+              <th>Fəaliyyətlər</th>
             </tr>
           </thead>
           <tbody>
-            {packages.map(pkg => (
-              <tr key={pkg.id}>
-                <td>{pkg.title}</td>
-                <td>{pkg.description}</td>
-                <td>{pkg.price} AZN</td>
-                <td>{pkg.discount}%</td>
-                <td>{pkg.duration} дней</td>
-                <td>{pkg.status}</td>
-                <td>
-                  <div className="table-actions">
-                    <Link 
-                      to={`/admin/packages/${pkg.id}/edit`}
-                      className="btn btn-secondary"
+            {packages.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="no-data">Heç bir paket tapılmadı</td>
+              </tr>
+            ) : (
+              packages.map(pkg => (
+                <tr key={pkg.id}>
+                  <td>{pkg.title}</td>
+                  <td>{pkg.price} AZN</td>
+                  <td>{pkg.discount}%</td>
+                  <td>{pkg.duration} gün</td>
+                  <td>{pkg.status === 'active' ? 'Aktiv' : 'Deaktiv'}</td>
+                  <td className="table-actions">
+                    <button
+                      onClick={() => navigate(`/admin/packages/${pkg.id}`)}
+                      className="btn-secondary"
                     >
-                      Редактировать
-                    </Link>
+                      Düzəliş et
+                    </button>
                     <button
                       onClick={() => handleDelete(pkg.id)}
-                      className="btn btn-danger"
+                      className="btn-danger"
                     >
-                      Удалить
+                      Sil
                     </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-      )}
+      </div>
     </div>
   );
 };

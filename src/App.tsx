@@ -17,7 +17,9 @@ import CourseForm from './components/admin/courses/CourseForm';
 import LessonList from './components/admin/lessons/LessonList';
 import LessonForm from './components/admin/lessons/LessonForm';
 import QuizList from './components/admin/quizzes/QuizList';
+import QuizForm from './components/admin/quizzes/QuizForm';
 import PackageList from './components/admin/packages/PackageList';
+import PackageForm from './components/admin/packages/PackageForm';
 import LessonPlayer from './components/lessons/LessonPlayer';
 import QuizPlayer from './components/quizzes/QuizPlayer';
 import Profile from './components/profile/Profile';
@@ -76,20 +78,32 @@ const App: React.FC = () => {
             </MainLayout>
           } />
           <Route path="/profile" element={
-            <MainLayout>
-              <Profile />
-            </MainLayout>
+            <ProtectedRoute>
+              <MainLayout>
+                <Profile />
+              </MainLayout>
+            </ProtectedRoute>
           } />
 
           {/* Lesson and Quiz Player Routes */}
-          <Route path="/lessons/:id" element={<LessonPlayer />} />
-          <Route path="/quizzes/:id" element={<QuizPlayer />} />
+          <Route path="/lessons/:id" element={
+            <ProtectedRoute>
+              <LessonPlayer />
+            </ProtectedRoute>
+          } />
+          <Route path="/quizzes/:id" element={
+            <ProtectedRoute>
+              <QuizPlayer />
+            </ProtectedRoute>
+          } />
 
           {/* Admin routes */}
           <Route
             path="/admin"
             element={
-              <AdminLayout />
+              <ProtectedRoute requiredRole="admin">
+                <AdminLayout />
+              </ProtectedRoute>
             }
           >
             <Route index element={<Dashboard />} />
@@ -98,23 +112,32 @@ const App: React.FC = () => {
             {/* Course routes */}
             <Route path="courses" element={<AdminCourseList />} />
             <Route path="courses/new" element={<CourseForm />} />
-            <Route path="courses/:id/edit" element={<CourseForm />} />
+            <Route path="courses/:id" element={<CourseForm />} />
             
             {/* Lesson routes */}
             <Route path="lessons" element={<LessonList />} />
             <Route path="lessons/new" element={<LessonForm />} />
-            <Route path="lessons/:id/edit" element={<LessonForm />} />
-            <Route path="courses/:courseId/lessons" element={<LessonList />} />
-            <Route path="courses/:courseId/lessons/new" element={<LessonForm />} />
+            <Route path="lessons/:id" element={<LessonForm />} />
             
             {/* Quiz routes */}
             <Route path="quizzes" element={<QuizList />} />
-            <Route path="courses/:courseId/quizzes" element={<QuizList />} />
-            <Route path="lessons/:lessonId/quizzes" element={<QuizList />} />
+            <Route path="quizzes/new" element={<QuizForm />} />
+            <Route path="quizzes/:id" element={<QuizForm />} />
             
             {/* Package routes */}
             <Route path="packages" element={<PackageList />} />
+            <Route path="packages/new" element={<PackageForm />} />
+            <Route path="packages/:id" element={<PackageForm />} />
+            
+            {/* User routes */}
+            <Route path="users" element={<div>User Management</div>} />
+            
+            {/* Subscription routes */}
+            <Route path="subscriptions" element={<div>Subscription Management</div>} />
           </Route>
+
+          {/* Fallback route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

@@ -1,153 +1,98 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { getQuizzes, deleteQuiz } from '../../../services/quizService';
-import { getCourse } from '../../../services/courseService';
-import { getLesson } from '../../../services/lessonService';
-import { Quiz } from '../../../services/quizService';
+import { Link, useNavigate } from 'react-router-dom';
+import { Quiz, getQuizzes, deleteQuiz } from '../../../services/quizService';
+import '../../admin/Admin.css';
 
 const QuizList: React.FC = () => {
-  const { courseId, lessonId } = useParams<{ courseId: string; lessonId: string }>();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-  const [courseName, setCourseName] = useState<string>('');
-  const [lessonName, setLessonName] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadQuizzes();
-    if (courseId) {
-      loadCourseName();
-    }
-    if (lessonId) {
-      loadLessonName();
-    }
-  }, [courseId, lessonId]);
+  }, []);
 
   const loadQuizzes = async () => {
     try {
-      const data = await getQuizzes(courseId, lessonId);
+      setLoading(true);
+      const data = await getQuizzes();
       setQuizzes(data);
+      setError(null);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Failed to load quizzes');
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const loadCourseName = async () => {
-    try {
-      const course = await getCourse(courseId!);
-      setCourseName(course.title);
-    } catch (err: any) {
-      console.error("Не удалось загрузить название курса:", err);
-    }
-  };
-
-  const loadLessonName = async () => {
-    try {
-      const lesson = await getLesson(lessonId!);
-      setLessonName(lesson.title);
-    } catch (err: any) {
-      console.error("Не удалось загрузить название урока:", err);
+      setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Вы уверены, что хотите удалить этот тест?')) {
+    if (window.confirm('Are you sure you want to delete this quiz?')) {
       try {
         await deleteQuiz(id);
         setQuizzes(quizzes.filter(quiz => quiz.id !== id));
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || 'Failed to delete quiz');
       }
     }
   };
 
-  if (isLoading) {
-    return <div>Загрузка...</div>;
+  if (loading) {
+    return <div className="loading">Loading...</div>;
   }
-
-  if (error) {
-    return <div className="error-message">{error}</div>;
-  }
-
-  const getCreateUrl = () => {
-    if (lessonId) {
-      return `/admin/lessons/${lessonId}/quizzes/new`;
-    }
-    if (courseId) {
-      return `/admin/courses/${courseId}/quizzes/new`;
-    }
-    return '/admin/quizzes/new';
-  };
 
   return (
-    <div>
+    <div className="admin-content">
       <div className="page-header">
-        <h1>
-          {lessonId ? (
-            <>
-              Тесты для урока: <span className="lesson-title">{lessonName}</span>
-            </>
-          ) : courseId ? (
-            <>
-              Тесты курса: <span className="course-title">{courseName}</span>
-            </>
-          ) : (
-            "Все тесты"
-          )}
-        </h1>
-        <Link 
-          to={getCreateUrl()} 
-          className="btn btn-primary"
-        >
-          Новый тест
-        </Link>
+        <h1>Testlər</h1>
+        <Link to="/admin/quizzes/new" className="btn-primary">Yeni test əlavə et</Link>
       </div>
 
-      {quizzes.length === 0 ? (
-        <p>Тесты не найдены</p>
-      ) : (
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="table-container">
         <table className="admin-table">
           <thead>
             <tr>
-              <th>Название</th>
-              <th>Описание</th>
-              <th>Количество вопросов</th>
-              <th>Лимит времени</th>
-              <th>Проходной балл</th>
-              <th>Действия</th>
+              <th>Başlıq</th>
+              <th>Kurs</th>
+              <th>Sualların sayı</th>
+              <th>Vaxt</th>
+              <th>Fəaliyyətlər</th>
             </tr>
           </thead>
           <tbody>
-            {quizzes.map(quiz => (
-              <tr key={quiz.id}>
-                <td>{quiz.title}</td>
-                <td>{quiz.description}</td>
-                <td>{quiz.questions.length}</td>
-                <td>{quiz.timeLimit ? `${quiz.timeLimit} мин.` : 'Не ограничено'}</td>
-                <td>{quiz.passingScore}%</td>
-                <td>
-                  <div className="table-actions">
-                    <Link 
-                      to={`/admin/quizzes/${quiz.id}/edit`}
-                      className="btn btn-secondary"
+            {quizzes.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="no-data">Heç bir test tapılmadı</td>
+              </tr>
+            ) : (
+              quizzes.map(quiz => (
+                <tr key={quiz.id}>
+                  <td>{quiz.title}</td>
+                  <td>{quiz.courseId}</td>
+                  <td>{quiz.questions.length}</td>
+                  <td>{quiz.timeLimit} dəqiqə</td>
+                  <td className="table-actions">
+                    <button
+                      onClick={() => navigate(`/admin/quizzes/${quiz.id}`)}
+                      className="btn-secondary"
                     >
-                      Редактировать
-                    </Link>
+                      Düzəliş et
+                    </button>
                     <button
                       onClick={() => handleDelete(quiz.id)}
-                      className="btn btn-danger"
+                      className="btn-danger"
                     >
-                      Удалить
+                      Sil
                     </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-      )}
+      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getUserProfile, updateUserProfile, uploadProfilePhoto, changePassword } from '../../services/userService';
 import { UserProfile, UpdateProfileData, ChangePasswordData } from '../../services/userService';
+import { SectorType } from '../../types/enums';
 import './Profile.css';
 
 const Profile: React.FC = () => {
@@ -31,7 +32,8 @@ const Profile: React.FC = () => {
         lastName: userData.lastName,
         email: userData.email,
         phoneNumber: userData.phoneNumber,
-        idNumber: userData.idNumber
+        group: userData.group,
+        sector: userData.sector
       });
     } catch (err: any) {
       setError('Profil məlumatlarını yükləmək mümkün olmadı');
@@ -41,11 +43,18 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value
+      [name]: name === 'group' ? parseInt(value) : value
+    });
+  };
+
+  const handleSectorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      sector: e.target.value as SectorType
     });
   };
 
@@ -121,7 +130,7 @@ const Profile: React.FC = () => {
         
         setProfile(prev => {
           if (!prev) return null;
-          return { ...prev, avatarUrl: result.avatarUrl };
+          return { ...prev, profilePictureUrl: result.profilePictureUrl };
         });
         
         setSuccessMessage('Profil şəkli uğurla yeniləndi');
@@ -181,7 +190,7 @@ const Profile: React.FC = () => {
           <div className="avatar-section">
             <div className="avatar-container">
               <img 
-                src={profile?.avatarUrl || 'https://ui-avatars.com/api/?name=User&background=random'} 
+                src={profile?.profilePictureUrl || 'https://ui-avatars.com/api/?name=User&background=random'} 
                 alt="Profile" 
                 className="avatar-image" 
               />
@@ -252,17 +261,42 @@ const Profile: React.FC = () => {
                 required
               />
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="idNumber">Vəsiqənin nömrəsi</label>
-              <input
-                type="text"
-                id="idNumber"
-                name="idNumber"
-                value={formData.idNumber || ''}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-              />
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="group">Qrup</label>
+                <select
+                  id="group"
+                  name="group"
+                  value={formData.group || 1}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                  required
+                >
+                  <option value={1}>Qrup 1</option>
+                  <option value={2}>Qrup 2</option>
+                  <option value={3}>Qrup 3</option>
+                  <option value={4}>Qrup 4</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="sector">Sektor</label>
+                <select
+                  id="sector"
+                  name="sector"
+                  value={formData.sector || SectorType.MATH}
+                  onChange={handleSectorChange}
+                  disabled={!isEditing}
+                  required
+                >
+                  {Object.values(SectorType).map(sector => (
+                    <option key={sector} value={sector}>
+                      {sector}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             
             <div className="form-actions">

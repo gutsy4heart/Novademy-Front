@@ -245,4 +245,55 @@
   border-radius: 4px;
   margin-bottom: 1rem;
   border: 1px solid #ffcdd2;
+}
+
+/* Quiz Form Styles */
+.question-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+
+.question-container h3 {
+  margin-top: 0;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.options-container {
+  margin-top: 20px;
+}
+
+.options-container h4 {
+  margin-bottom: 15px;
+  color: #555;
+}
+
+.option-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.option-input {
+  flex: 1;
+}
+
+.option-radio {
+  display: flex;
+  align-items: center;
+  margin-left: 15px;
+  min-width: 120px;
+}
+
+.option-radio input[type="radio"] {
+  margin-right: 5px;
+}
+
+.question-remove-btn {
+  margin-top: 15px;
 } 
