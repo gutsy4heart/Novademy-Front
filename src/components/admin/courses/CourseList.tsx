@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getCourses, deleteCourse } from '../../../services/courseService';
+import { courseService } from '../../../api/courseService';
+import { SubjectType } from '../../../types/enums';
 
 interface Course {
   id: string;
   title: string;
   description: string;
-  price: number;
+  subject: SubjectType;
+  imageUrl?: string;
   createdAt: string;
-  status: string;
+  updatedAt: string;
 }
 
 const CourseList: React.FC = () => {
@@ -22,10 +24,10 @@ const CourseList: React.FC = () => {
 
   const loadCourses = async () => {
     try {
-      const data = await getCourses();
+      const data = await courseService.getCourses();
       setCourses(data);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Kurslar yüklənərkən xəta baş verdi');
     } finally {
       setIsLoading(false);
     }
@@ -34,16 +36,16 @@ const CourseList: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (window.confirm('Bu kursu silmək istədiyinizə əminsiniz?')) {
       try {
-        await deleteCourse(id);
+        await courseService.deleteCourse(id);
         setCourses(courses.filter(course => course.id !== id));
       } catch (err: any) {
-        setError(err.message);
+        setError(err.message || 'Kurs silinərkən xəta baş verdi');
       }
     }
   };
 
   if (isLoading) {
-    return <div>Yüklənir...</div>;
+    return <div className="loading">Yüklənir...</div>;
   }
 
   if (error) {
@@ -64,9 +66,9 @@ const CourseList: React.FC = () => {
           <tr>
             <th>Ad</th>
             <th>Təsvir</th>
-            <th>Qiymət</th>
-            <th>Status</th>
+            <th>Fənn</th>
             <th>Yaradılma tarixi</th>
+            <th>Son yenilənmə</th>
             <th>Əməliyyatlar</th>
           </tr>
         </thead>
@@ -75,9 +77,9 @@ const CourseList: React.FC = () => {
             <tr key={course.id}>
               <td>{course.title}</td>
               <td>{course.description}</td>
-              <td>{course.price} AZN</td>
-              <td>{course.status}</td>
+              <td>{course.subject}</td>
               <td>{new Date(course.createdAt).toLocaleDateString()}</td>
+              <td>{new Date(course.updatedAt).toLocaleDateString()}</td>
               <td>
                 <div className="table-actions">
                   <Link 

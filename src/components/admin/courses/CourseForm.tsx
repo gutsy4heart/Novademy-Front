@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createCourse, updateCourse, getCourse, SubjectType } from '../../../services/courseService';
+import { courseService, CreateCourseData } from '../../../api/courseService';
+import { SubjectType } from '../../../types/enums';
 
-interface CourseFormData {
-  title: string;
-  description: string;
-  price: number;
-  status: string;
-  subject: SubjectType;
+interface CourseFormData extends CreateCourseData {
+  image?: File;
 }
 
 const initialFormData: CourseFormData = {
   title: '',
   description: '',
-  price: 0,
-  status: 'Draft',
-  subject: SubjectType.MATH
+  subject: SubjectType.Math,
+  image: undefined
 };
 
 const CourseForm: React.FC = () => {
@@ -24,6 +20,7 @@ const CourseForm: React.FC = () => {
   const [formData, setFormData] = useState<CourseFormData>(initialFormData);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -34,16 +31,17 @@ const CourseForm: React.FC = () => {
   const loadCourse = async () => {
     try {
       setIsLoading(true);
-      const course = await getCourse(id!);
+      const course = await courseService.getCourse(id!);
       setFormData({
         title: course.title,
         description: course.description,
-        price: course.price,
-        status: course.status,
         subject: course.subject
       });
+      if (course.imageUrl) {
+        setImagePreview(course.imageUrl);
+      }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Kurs yüklənərkən xəta baş verdi');
     } finally {
       setIsLoading(false);
     }
@@ -56,13 +54,13 @@ const CourseForm: React.FC = () => {
 
     try {
       if (id) {
-        await updateCourse(id, formData);
+        await courseService.updateCourse(id, formData);
       } else {
-        await createCourse(formData);
+        await courseService.createCourse(formData);
       }
       navigate('/admin/courses');
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Kurs yadda saxlanılarkən xəta baş verdi');
     } finally {
       setIsLoading(false);
     }
@@ -74,12 +72,24 @@ const CourseForm: React.FC = () => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'price' ? parseFloat(value) || 0 : value
+      [name]: name === 'subject' ? value as SubjectType : value
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, image: file }));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   if (isLoading && id) {
-    return <div>Yüklənir...</div>;
+    return <div className="loading">Yüklənir...</div>;
   }
 
   return (
@@ -114,35 +124,6 @@ const CourseForm: React.FC = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="price">Qiymət (AZN)</label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            min="0"
-            step="0.01"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="status">Status</label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            required
-          >
-            <option value="Draft">Qaralama</option>
-            <option value="Published">Dərc edilib</option>
-            <option value="Archived">Arxivləşdirilib</option>
-          </select>
-        </div>
-
-        <div className="form-group">
           <label htmlFor="subject">Fənn</label>
           <select
             id="subject"
@@ -157,6 +138,22 @@ const CourseForm: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="image">Şəkil</label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            onChange={handleImageChange}
+            accept="image/*"
+          />
+          {imagePreview && (
+            <div className="image-preview">
+              <img src={imagePreview} alt="Course preview" />
+            </div>
+          )}
         </div>
 
         <div className="form-actions">

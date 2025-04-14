@@ -1,44 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lesson, getLessons, deleteLesson } from '../../../services/lessonService';
+import { Lesson, getLessons, deleteLesson } from '../../../api/lessonService';
+import { getCourses, Course } from '../../../api/courseService';
 import '../../admin/Admin.css';
 
 const LessonList: React.FC = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadLessons();
+    loadData();
   }, []);
 
-  const loadLessons = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const data = await getLessons();
-      setLessons(data);
+      const [lessonsData, coursesData] = await Promise.all([
+        getLessons(),
+        getCourses()
+      ]);
+      setLessons(lessonsData);
+      setCourses(coursesData);
       setError(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to load lessons');
+      setError(err.message || 'Dərsləri yükləmək mümkün olmadı');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this lesson?')) {
+    if (window.confirm('Bu dərsi silmək istədiyinizə əminsiniz?')) {
       try {
         await deleteLesson(id);
         setLessons(lessons.filter(lesson => lesson.id !== id));
       } catch (err: any) {
-        setError(err.message || 'Failed to delete lesson');
+        setError(err.message || 'Dərsi silmək mümkün olmadı');
       }
     }
   };
 
+  const getCourseTitle = (courseId: string) => {
+    const course = courses.find(c => c.id === courseId);
+    return course ? course.title : 'Kurs tapılmadı';
+  };
+
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading">Yüklənir...</div>;
   }
 
   return (
@@ -69,7 +80,7 @@ const LessonList: React.FC = () => {
               lessons.map(lesson => (
                 <tr key={lesson.id}>
                   <td>{lesson.title}</td>
-                  <td>{lesson.courseId}</td>
+                  <td>{getCourseTitle(lesson.courseId)}</td>
                   <td>{lesson.order}</td>
                   <td className="table-actions">
                     <button

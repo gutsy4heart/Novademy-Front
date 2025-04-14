@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Lesson, getLesson, createLesson, updateLesson, CreateLessonData } from '../../../services/lessonService';
-import { getCourses } from '../../../services/courseService';
+import { Lesson, getLesson, createLesson, updateLesson, CreateLessonData } from '../../../api/lessonService';
+import { getCourses, Course } from '../../../api/courseService';
 import '../../admin/Admin.css';
-
-interface CourseOption {
-  id: string;
-  title: string;
-}
 
 const LessonForm: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,12 +12,13 @@ const LessonForm: React.FC = () => {
     title: '',
     description: '',
     courseId: '',
-    videoUrl: '',
+    video: null,
     content: '',
     order: 0
   });
   
-  const [courses, setCourses] = useState<CourseOption[]>([]);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,10 +29,7 @@ const LessonForm: React.FC = () => {
         setLoading(true);
         // Load available courses for dropdown
         const coursesData = await getCourses();
-        setCourses(coursesData.map(course => ({
-          id: course.id,
-          title: course.title
-        })));
+        setCourses(coursesData);
         
         // If ID is provided, load lesson data for editing
         if (id && id !== 'new') {
@@ -45,15 +38,18 @@ const LessonForm: React.FC = () => {
             title: lesson.title,
             description: lesson.description,
             courseId: lesson.courseId,
-            videoUrl: lesson.videoUrl || '',
+            video: null,
             content: lesson.content || '',
             order: lesson.order
           });
+          if (lesson.videoUrl) {
+            setVideoPreview(lesson.videoUrl);
+          }
         }
         
         setError(null);
       } catch (err: any) {
-        setError(err.message || 'Failed to load data');
+        setError(err.message || 'Məlumatları yükləmək mümkün olmadı');
       } finally {
         setLoading(false);
       }
@@ -69,6 +65,15 @@ const LessonForm: React.FC = () => {
       [name]: name === 'order' ? parseInt(value) || 0 : value
     }));
   };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData(prev => ({ ...prev, video: file }));
+      const previewUrl = URL.createObjectURL(file);
+      setVideoPreview(previewUrl);
+    }
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,13 +88,13 @@ const LessonForm: React.FC = () => {
       
       navigate('/admin/lessons');
     } catch (err: any) {
-      setError(err.message || 'Failed to save lesson');
+      setError(err.message || 'Dərsi saxlamaq mümkün olmadı');
       setSaving(false);
     }
   };
   
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return <div className="loading">Yüklənir...</div>;
   }
   
   return (
@@ -143,14 +148,19 @@ const LessonForm: React.FC = () => {
         </div>
         
         <div className="form-group">
-          <label htmlFor="videoUrl">Video URL (ixtiyari)</label>
+          <label htmlFor="video">Video</label>
           <input
-            type="text"
-            id="videoUrl"
-            name="videoUrl"
-            value={formData.videoUrl}
-            onChange={handleChange}
+            type="file"
+            id="video"
+            name="video"
+            accept="video/*"
+            onChange={handleVideoChange}
           />
+          {videoPreview && (
+            <div className="video-preview">
+              <video controls src={videoPreview} className="preview-video" />
+            </div>
+          )}
         </div>
         
         <div className="form-group">
@@ -177,7 +187,7 @@ const LessonForm: React.FC = () => {
           />
         </div>
         
-        <div className="form-buttons">
+        <div className="form-actions">
           <button 
             type="button" 
             onClick={() => navigate('/admin/lessons')} 

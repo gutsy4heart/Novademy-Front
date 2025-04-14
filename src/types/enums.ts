@@ -18,4 +18,17 @@ export enum SubscriptionStatus {
   EXPIRED = 'EXPIRED',
   CANCELED = 'CANCELED',
   PENDING = 'PENDING'
+}
+
+export enum SubjectType {
+  Math = 'Math',
+  Physics = 'Physics',
+  Chemistry = 'Chemistry',
+  Biology = 'Biology',
+  History = 'History',
+  Geography = 'Geography',
+  Literature = 'Literature',
+  English = 'English',
+  Azerbaijani = 'Azerbaijani',
+  Russian = 'Russian'
 } 

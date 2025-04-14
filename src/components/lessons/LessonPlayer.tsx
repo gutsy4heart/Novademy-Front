@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getLesson } from '../../services/lessonService';
-import { Lesson } from '../../services/lessonService';
+import { getLesson, Lesson } from '../../api/lessonService';
 import './LessonPlayer.css';
 
 interface Comment {
