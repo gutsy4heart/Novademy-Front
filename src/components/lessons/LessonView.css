@@ -99,6 +99,25 @@
   object-fit: cover;
 }
 
+.lesson-description {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.lesson-description h3 {
+  margin: 0 0 1rem;
+  color: #212529;
+  font-size: 1.2rem;
+}
+
+.lesson-description p {
+  margin: 0;
+  color: #495057;
+  line-height: 1.6;
+}
+
 .lesson-navigation-buttons {
   display: flex;
   justify-content: space-between;
