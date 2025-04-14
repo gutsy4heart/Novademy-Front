@@ -1,0 +1,155 @@
+.lesson-view {
+  display: flex;
+  height: 100vh;
+  background-color: #fff;
+}
+
+.lesson-sidebar {
+  width: 300px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  color: #212529;
+  font-size: 1.1rem;
+}
+
+.lesson-navigation ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lesson-navigation li {
+  border-bottom: 1px solid #e9ecef;
+  position: relative;
+}
+
+.lesson-navigation li a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  color: #495057;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.lesson-navigation li.active a {
+  background-color: #e31c79;
+  color: white;
+}
+
+.lesson-navigation li a:hover {
+  background-color: #e9ecef;
+}
+
+.lesson-navigation li.active a:hover {
+  background-color: #d41970;
+}
+
+.completed-mark {
+  color: #28a745;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.lesson-navigation li.active .completed-mark {
+  color: white;
+}
+
+.lesson-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.lesson-content h2 {
+  margin: 0;
+  color: #212529;
+  font-size: 1.5rem;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-container video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lesson-navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.nav-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.nav-button.prev {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+.nav-button.next {
+  background-color: #e31c79;
+  color: white;
+}
+
+.nav-button:hover {
+  transform: translateY(-1px);
+}
+
+.nav-button.prev:hover {
+  background-color: #e9ecef;
+}
+
+.nav-button.next:hover {
+  background-color: #d41970;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #dc3545;
+  font-size: 1.2rem;
+} 

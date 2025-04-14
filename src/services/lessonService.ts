@@ -3,45 +3,57 @@ import apiClient from '../api/apiClient';
 export interface Lesson {
   id: string;
   title: string;
-  description: string;
+  videoUrl: string;
   courseId: string;
-  videoUrl?: string;
-  content?: string;
   order: number;
+  description?: string;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CreateLessonData {
-  title: string;
-  description: string;
-  courseId: string;
-  videoUrl?: string;
-  content?: string;
-  order: number;
+export interface LessonResponse {
+  lesson: Lesson;
+  nextLesson?: Lesson;
+  prevLesson?: Lesson;
 }
 
-export const getLessons = async (courseId?: string): Promise<Lesson[]> => {
-  const url = courseId ? `/lessons?courseId=${courseId}` : '/lessons';
-  const response = await apiClient.get(url);
-  return response.data as Lesson[];
-};
+export const lessonService = {
+  // Получить все уроки курса
+  async getLessonsByCourse(courseId: string): Promise<Lesson[]> {
+    try {
+      const response = await apiClient.get(`/courses/${courseId}/lessons`);
+      return response.data as Lesson[];
+    } catch (error) {
+      throw new Error('Failed to fetch lessons');
+    }
+  },
 
-export const getLesson = async (id: string): Promise<Lesson> => {
-  const response = await apiClient.get(`/lessons/${id}`);
-  return response.data as Lesson;
-};
+  // Получить конкретный урок с информацией о следующем и предыдущем уроках
+  async getLesson(courseId: string, lessonId: string): Promise<LessonResponse> {
+    try {
+      const response = await apiClient.get(`/courses/${courseId}/lessons/${lessonId}`);
+      return response.data as LessonResponse;
+    } catch (error) {
+      throw new Error('Failed to fetch lesson');
+    }
+  },
 
-export const createLesson = async (data: CreateLessonData): Promise<Lesson> => {
-  const response = await apiClient.post('/lessons', data);
-  return response.data as Lesson;
-};
+  // Отметить урок как просмотренный
+  async markLessonAsWatched(courseId: string, lessonId: string): Promise<void> {
+    try {
+      await apiClient.post(`/courses/${courseId}/lessons/${lessonId}/watch`);
+    } catch (error) {
+      throw new Error('Failed to mark lesson as watched');
+    }
+  },
 
-export const updateLesson = async (id: string, data: Partial<CreateLessonData>): Promise<Lesson> => {
-  const response = await apiClient.put(`/lessons/${id}`, data);
-  return response.data as Lesson;
-};
-
-export const deleteLesson = async (id: string): Promise<void> => {
-  await apiClient.delete(`/lessons/${id}`);
+  // Получить прогресс просмотра уроков курса
+  async getLessonProgress(courseId: string): Promise<{ [key: string]: boolean }> {
+    try {
+      const response = await apiClient.get(`/courses/${courseId}/lessons/progress`);
+      return response.data as { [key: string]: boolean };
+    } catch (error) {
+      throw new Error('Failed to fetch lesson progress');
+    }
+  }
 }; 
