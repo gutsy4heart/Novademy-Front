@@ -23,8 +23,13 @@ import PackageForm from './components/admin/packages/PackageForm';
 import LessonPlayer from './components/lessons/LessonPlayer';
 import QuizPlayer from './components/quizzes/QuizPlayer';
 import Profile from './components/profile/Profile';
+import ProfilePage from './components/profile/ProfilePage';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
+import { AuthProvider } from './contexts/AuthContext';
+import LoginPage from './components/auth/LoginPage';
+import RegisterPage from './components/auth/RegisterPage';
+import { LessonView } from './components/lessons/LessonView';
 
 const LandingPage: React.FC = () => {
   return (
@@ -48,99 +53,66 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <div className="app">
-        <Routes>
-          {/* Auth routes without Navbar and Footer */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/verify" element={<AuthCode />} />
+    <AuthProvider>
+      <Router>
+        <div className="app">
+          <Routes>
+            {/* Auth routes without Navbar and Footer */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify" element={<AuthCode />} />
 
-          {/* Main routes with Navbar and Footer */}
-          <Route path="/" element={
-            <MainLayout>
-              <LandingPage />
-            </MainLayout>
-          } />
-          <Route path="/courses" element={
-            <MainLayout>
-              <CourseList />
-            </MainLayout>
-          } />
-          <Route path="/courses/create" element={
-            <MainLayout>
-              <CreateCourse />
-            </MainLayout>
-          } />
-          <Route path="/courses/:id" element={
-            <MainLayout>
-              <div>Страница курса</div>
-            </MainLayout>
-          } />
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <MainLayout>
-                <Profile />
-              </MainLayout>
-            </ProtectedRoute>
-          } />
+            {/* Main routes */}
+            <Route path="/" element={
+              <>
+                <Navbar />
+                <LandingPage />
+                <Footer />
+              </>
+            } />
 
-          {/* Lesson and Quiz Player Routes */}
-          <Route path="/lessons/:id" element={
-            <ProtectedRoute>
-              <LessonPlayer />
-            </ProtectedRoute>
-          } />
-          <Route path="/quizzes/:id" element={
-            <ProtectedRoute>
-              <QuizPlayer />
-            </ProtectedRoute>
-          } />
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={
+                <>
+                  <Navbar />
+                  <Dashboard />
+                  <Footer />
+                </>
+              } />
+              
+              <Route path="/profile" element={
+                <>
+                  <Navbar />
+                  <ProfilePage />
+                  <Footer />
+                </>
+              } />
+              
+              <Route path="/courses/:courseId/lessons/:lessonId" element={
+                <>
+                  <Navbar />
+                  <LessonView />
+                  <Footer />
+                </>
+              } />
 
-          {/* Admin routes */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute requiredRole="admin">
-                <AdminLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            
-            {/* Course routes */}
-            <Route path="courses" element={<AdminCourseList />} />
-            <Route path="courses/new" element={<CourseForm />} />
-            <Route path="courses/:id" element={<CourseForm />} />
-            
-            {/* Lesson routes */}
-            <Route path="lessons" element={<LessonList />} />
-            <Route path="lessons/new" element={<LessonForm />} />
-            <Route path="lessons/:id" element={<LessonForm />} />
-            
-            {/* Quiz routes */}
-            <Route path="quizzes" element={<QuizList />} />
-            <Route path="quizzes/new" element={<QuizForm />} />
-            <Route path="quizzes/:id" element={<QuizForm />} />
-            
-            {/* Package routes */}
-            <Route path="packages" element={<PackageList />} />
-            <Route path="packages/new" element={<PackageForm />} />
-            <Route path="packages/:id" element={<PackageForm />} />
-            
-            {/* User routes */}
-            <Route path="users" element={<div>User Management</div>} />
-            
-            {/* Subscription routes */}
-            <Route path="subscriptions" element={<div>Subscription Management</div>} />
-          </Route>
+              {/* Admin routes */}
+              <Route path="/admin/*" element={
+                <>
+                  <Navbar />
+                  <AdminLayout />
+                  <Footer />
+                </>
+              } />
+            </Route>
 
-          {/* Fallback route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
-    </Router>
+            {/* Fallback route */}
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 };
 
