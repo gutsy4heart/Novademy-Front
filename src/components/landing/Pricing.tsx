@@ -27,11 +27,11 @@ const Pricing: React.FC = () => {
             <p>Qızıl paket</p>
           </div>
           <ul className="pricing-features">
-            <li>Riyaziyyat</li>
             <li>1-ci qrup</li>
             <li>2-ci qrup</li>
             <li>3-cü qrup</li>
             <li>4-cü qrup</li>
+            <li>Riyaziyyat</li>
           </ul>
           <button className="pricing-button">Daxil olun</button>
         </div>
