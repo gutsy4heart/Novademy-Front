@@ -3,7 +3,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import './ProfilePage.css';
 
 const ProfilePage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, getFullName } = useAuth();
   
   if (!user) {
     return (
@@ -15,20 +15,22 @@ const ProfilePage: React.FC = () => {
     );
   }
 
+  const userName = getFullName(user);
+
   return (
     <div className="profile-container">
       <div className="profile-card">
         <div className="profile-header">
           <h1>Profil</h1>
           <div className="profile-avatar">
-            {user.fullName.charAt(0).toUpperCase()}
+            {userName.charAt(0).toUpperCase()}
           </div>
         </div>
         
         <div className="profile-info">
           <div className="info-row">
             <div className="info-label">Ad və Soyad:</div>
-            <div className="info-value">{user.fullName}</div>
+            <div className="info-value">{userName}</div>
           </div>
           
           <div className="info-row">
@@ -38,7 +40,7 @@ const ProfilePage: React.FC = () => {
           
           <div className="info-row">
             <div className="info-label">Rol:</div>
-            <div className="info-value">{user.role === 'admin' ? 'Administrator' : 'İstifadəçi'}</div>
+            <div className="info-value">{user.roleId === 1 ? 'Administrator' : user.roleId === 2 ? 'Müəllim' : 'Tələbə'}</div>
           </div>
         </div>
       </div>

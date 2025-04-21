@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import './Navbar.css';
 
 const Navbar: React.FC = () => {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, getFullName } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
           {isAuthenticated && user ? (
             <div className="profile-dropdown">
               <button className="profile-button" onClick={toggleDropdown}>
-                {user.fullName || 'İstifadəçi'}
+                {user ? getFullName(user) : 'İstifadəçi'}
                 <span className="dropdown-arrow">▼</span>
               </button>
               {dropdownOpen && (

@@ -1,12 +1,14 @@
 import apiClient from './apiClient';
 
 export enum SectorType {
-  Azerbaijani = 'Azerbaijani',
-  Russian = 'Russian',
-  English = 'English'
+  Azerbaijani = 0,
+  Russian = 1,
+  English = 2
 }
 
+// Role IDs from backend
 export enum UserRole {
+  Admin = 1,
   Teacher = 2,
   Student = 3
 }
@@ -31,10 +33,22 @@ export interface RegisterData {
 
 export interface User {
   id: string;
-  fullName: string;
+  username: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  role: 'user' | 'admin';
+  phoneNumber: string;
+  group: number;
+  sector: SectorType;
+  profilePictureUrl?: string;
+  roleId: number;
+  role?: string;
 }
+
+// Helper function to get full name from user object
+export const getFullName = (user: User): string => {
+  return `${user.firstName} ${user.lastName}`;
+};
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<User> {
@@ -45,7 +59,7 @@ export const authService = {
       formData.append('username', credentials.username);
       formData.append('password', credentials.password);
 
-      // Создаем отдельный запрос с правильными заголовками для формы
+      // Create request with proper headers for form data
       const response = await apiClient.post<{ accessToken: string, refreshToken: string }>(
         '/auth/login', 
         formData,
@@ -59,18 +73,23 @@ export const authService = {
       console.log("Auth response:", response.data);
       localStorage.setItem('auth_token', response.data.accessToken);
       
-      // Временное решение для тестирования - сделаем mock ответа
-      // Когда бэкенд будет возвращать данные пользователя, уберите это
+      // Temporary solution for testing - mock response
+      // Will be removed when backend returns user data
       const mockUser: User = {
         id: '1',
-        fullName: credentials.username,
+        username: credentials.username,
+        firstName: 'Test',
+        lastName: 'User',
         email: `${credentials.username}@example.com`,
-        role: 'user'
+        phoneNumber: '+994501234567',
+        group: 1,
+        sector: SectorType.Azerbaijani,
+        roleId: UserRole.Student
       };
       
       return mockUser;
       
-      // Раскомментируйте когда бэкенд будет поддерживать /auth/me
+      // Uncomment when backend supports /auth/me
       // const userResponse = await apiClient.get<User>('/auth/me');
       // return userResponse.data;
     } catch (error: any) {
@@ -95,14 +114,14 @@ export const authService = {
       formData.append('phoneNumber', data.phoneNumber);
       formData.append('roleId', data.roleId.toString());
       formData.append('group', data.group.toString());
-      formData.append('sector', data.sector);
+      formData.append('sector', data.sector.toString());
       
-      // Если есть файл изображения профиля, добавляем его
+      // Add profile picture if provided
       if (data.profilePicture) {
         formData.append('profilePicture', data.profilePicture);
       }
       
-      // Для отладки выведем содержимое FormData через ключи
+      // For debugging, output FormData keys
       console.log("FormData keys:");
       console.log('username', formData.get('username'));
       console.log('password', '***');
@@ -128,12 +147,17 @@ export const authService = {
       console.log("Register response:", response.data);
       localStorage.setItem('auth_token', response.data.accessToken);
       
-      // Временное решение для тестирования - сделаем mock ответа
+      // Temporary solution for testing
       const mockUser: User = {
         id: '1',
-        fullName: `${data.firstName} ${data.lastName}`,
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
-        role: 'user'
+        phoneNumber: data.phoneNumber,
+        group: data.group,
+        sector: data.sector,
+        roleId: data.roleId
       };
       
       return mockUser;
@@ -158,7 +182,7 @@ export const authService = {
       const response = await apiClient.get<User>('/auth/me');
       return response.data;
     } catch (error) {
-      // Если запрос не удался, скорее всего токен недействителен
+      // If request fails, token is likely invalid
       this.logout();
       return null;
     }
@@ -166,7 +190,7 @@ export const authService = {
   
   logout(): void {
     localStorage.removeItem('auth_token');
-    // Перезагрузка страницы или редирект на главную
+    // Reload page or redirect to home
     window.location.href = '/';
   },
   
@@ -176,6 +200,14 @@ export const authService = {
   
   isAuthenticated(): boolean {
     return !!this.getToken();
+  },
+  
+  isAdmin(user: User | null): boolean {
+    return user?.roleId === UserRole.Admin;
+  },
+  
+  isTeacher(user: User | null): boolean {
+    return user?.roleId === UserRole.Teacher;
   }
 };
 

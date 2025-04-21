@@ -1,25 +1,18 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { User, getCurrentUser, login as apiLogin, register as apiRegister, logout as apiLogout, SectorType } from '../api/authService';
+import { User, LoginCredentials, RegisterData, getFullName } from '../api/authService';
+import * as authService from '../api/authService';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   error: string | null;
-  login: (username: string, password: string) => Promise<void>;
-  register: (
-    username: string, 
-    password: string, 
-    firstName: string, 
-    lastName: string, 
-    email: string, 
-    phoneNumber: string, 
-    roleId: number, 
-    group: number, 
-    sector: SectorType, 
-    profilePicture?: File
-  ) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
+  isAdmin: boolean;
+  isTeacher: boolean;
+  getFullName: (user: User) => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,75 +23,43 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Проверка состояния авторизации при загрузке
-    const checkAuthStatus = async () => {
+    // Check if user is already logged in
+    const checkAuth = async () => {
       try {
-        const userData = await getCurrentUser();
-        setUser(userData);
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
       } catch (err) {
-        console.error('Auth check failed:', err);
+        console.error('Authentication check failed:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    checkAuthStatus();
+    checkAuth();
   }, []);
 
-  const login = async (username: string, password: string) => {
-    setError(null);
+  const login = async (credentials: LoginCredentials) => {
     setIsLoading(true);
-    console.log("AuthContext: Login attempt with username:", username);
-    
+    setError(null);
     try {
-      const userData = await apiLogin({ username, password });
-      console.log("AuthContext: Login successful, user data:", userData);
+      const userData = await authService.login(credentials);
       setUser(userData);
     } catch (err: any) {
-      console.error("AuthContext: Login failed:", err);
-      setError(err.message || 'Giriş zamanı xəta baş verdi');
+      setError(err.message || 'Login failed');
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (
-    username: string, 
-    password: string, 
-    firstName: string, 
-    lastName: string, 
-    email: string, 
-    phoneNumber: string, 
-    roleId: number, 
-    group: number, 
-    sector: SectorType, 
-    profilePicture?: File
-  ) => {
-    setError(null);
+  const register = async (data: RegisterData) => {
     setIsLoading(true);
-    console.log("AuthContext: Register attempt with data:", { 
-      username, firstName, lastName, email, phoneNumber, roleId, group, sector, hasProfilePicture: !!profilePicture 
-    });
-    
+    setError(null);
     try {
-      const userData = await apiRegister({ 
-        username, 
-        password, 
-        firstName, 
-        lastName, 
-        email, 
-        phoneNumber, 
-        roleId, 
-        group, 
-        sector, 
-        profilePicture 
-      });
-      console.log("AuthContext: Registration successful, user data:", userData);
+      const userData = await authService.register(data);
       setUser(userData);
     } catch (err: any) {
-      console.error("AuthContext: Registration failed:", err);
-      setError(err.message || 'Qeydiyyat zamanı xəta baş verdi');
+      setError(err.message || 'Registration failed');
       throw err;
     } finally {
       setIsLoading(false);
@@ -106,29 +67,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
-    apiLogout();
+    authService.logout();
     setUser(null);
   };
 
-  const value = {
-    user,
-    isLoading,
-    error,
-    login,
-    register,
-    logout,
-    isAuthenticated: !!user,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        error,
+        login,
+        register,
+        logout,
+        isAuthenticated: authService.isAuthenticated(),
+        isAdmin: user?.roleId === 1, // Admin roleId is 1
+        isTeacher: user?.roleId === 2, // Teacher roleId is 2
+        getFullName
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  console.log("Context");
-  console.log(context);
   return context;
 }; 

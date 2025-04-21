@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
 
     try {
       console.log("Submitting login form with:", { username, password });
-      await login(username, password);
+      await login({ username, password });
       console.log("Login successful");
       navigate('/dashboard');
     } catch (err: any) {

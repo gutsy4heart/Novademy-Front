@@ -72,18 +72,18 @@ const RegisterPage: React.FC = () => {
         username, password, firstName, lastName, email, phoneNumber, roleId, group, sector, profilePicture: !!profilePicture 
       });
       
-      await register(
+      await register({
         username, 
         password, 
         firstName, 
         lastName, 
         email, 
-        phoneNumber, 
+        phoneNumber: `${phonePrefix}${phoneNumber}`, 
         roleId, 
         group, 
         sector, 
-        profilePicture || undefined
-      );
+        profilePicture: profilePicture || undefined
+      });
       
       console.log("Registration successful");
       navigate('/dashboard');
@@ -173,7 +173,7 @@ const RegisterPage: React.FC = () => {
               <select
                 id="sector"
                 value={sector}
-                onChange={(e) => setSector(e.target.value as SectorType)}
+                onChange={(e) => setSector(Number(e.target.value) as SectorType)}
                 required
               >
                 <option value={SectorType.Azerbaijani}>AZ</option>

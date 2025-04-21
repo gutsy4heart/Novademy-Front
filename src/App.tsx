@@ -10,20 +10,11 @@ import Footer from './components/layout/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import AuthCode from './components/auth/AuthCode';
-import AdminLayout from './components/admin/AdminLayout';
-import Dashboard from './components/admin/Dashboard';
-import AdminCourseList from './components/admin/courses/CourseList';
-import CourseForm from './components/admin/courses/CourseForm';
-import LessonList from './components/admin/lessons/LessonList';
-import LessonForm from './components/admin/lessons/LessonForm';
-import QuizList from './components/admin/quizzes/QuizList';
-import QuizForm from './components/admin/quizzes/QuizForm';
-import PackageList from './components/admin/packages/PackageList';
-import PackageForm from './components/admin/packages/PackageForm';
 import LessonPlayer from './components/lessons/LessonPlayer';
 import QuizPlayer from './components/quizzes/QuizPlayer';
 import Profile from './components/profile/Profile';
 import ProfilePage from './components/profile/ProfilePage';
+import Dashboard from './components/dashboard/Dashboard';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 import { AuthProvider } from './contexts/AuthContext';
@@ -97,14 +88,8 @@ const App: React.FC = () => {
                 </>
               } />
 
-              {/* Admin routes */}
-              <Route path="/admin/*" element={
-                <>
-                  <Navbar />
-                  <AdminLayout />
-                  <Footer />
-                </>
-              } />
+              {/* Admin routes - redirecting to admin application */}
+              <Route path="/admin/*" element={<Navigate to="http://localhost:3002/login" replace />} />
             </Route>
 
             {/* Fallback route */}
