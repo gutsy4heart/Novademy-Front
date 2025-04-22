@@ -10,7 +10,7 @@ import Footer from './components/layout/Footer';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import AuthCode from './components/auth/AuthCode';
-import LessonPlayer from './components/lessons/LessonPlayer';
+import LessonPlayer from './components/student/LessonPlayer';
 import QuizPlayer from './components/quizzes/QuizPlayer';
 import Profile from './components/profile/Profile';
 import ProfilePage from './components/profile/ProfilePage';
@@ -20,7 +20,7 @@ import './App.css';
 import { AuthProvider } from './contexts/AuthContext';
 import LoginPage from './components/auth/LoginPage';
 import RegisterPage from './components/auth/RegisterPage';
-import { LessonView } from './components/lessons/LessonView';
+import CourseView from './components/student/CourseView';
 
 const LandingPage: React.FC = () => {
   return (
@@ -80,10 +80,19 @@ const App: React.FC = () => {
                 </>
               } />
               
+              {/* Student course and lesson routes */}
+              <Route path="/courses/:courseId" element={
+                <>
+                  <Navbar />
+                  <CourseView />
+                  <Footer />
+                </>
+              } />
+              
               <Route path="/courses/:courseId/lessons/:lessonId" element={
                 <>
                   <Navbar />
-                  <LessonView />
+                  <LessonPlayer />
                   <Footer />
                 </>
               } />

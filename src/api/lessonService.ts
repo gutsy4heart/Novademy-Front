@@ -1,4 +1,15 @@
-import apiClient from './apiClient';
+import axios from 'axios';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    Authorization: token ? `Bearer ${token}` : '',
+    'Content-Type': 'application/json'
+  };
+};
 
 export interface Lesson {
   id: string;
@@ -25,7 +36,7 @@ export interface CreateLessonData {
 export const lessonService = {
   async getLessons(): Promise<Lesson[]> {
     try {
-      const response = await apiClient.get<Lesson[]>('/lessons');
+      const response = await axios.get<Lesson[]>(`${API_URL}/lessons`, { headers: getAuthHeaders() });
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -37,7 +48,7 @@ export const lessonService = {
 
   async getLesson(id: string): Promise<Lesson> {
     try {
-      const response = await apiClient.get<Lesson>(`/lessons/${id}`);
+      const response = await axios.get<Lesson>(`${API_URL}/lessons/${id}`, { headers: getAuthHeaders() });
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -53,17 +64,17 @@ export const lessonService = {
       formData.append('title', data.title);
       formData.append('description', data.description);
       if (data.video) formData.append('video', data.video);
-      formData.append('order', data.order.toString());
+      if (data.order) formData.append('order', String(data.order));
       if (data.content) formData.append('content', data.content);
       formData.append('courseId', data.courseId);
 
-      const response = await apiClient.post<Lesson>('/lessons', formData);
+      const response = await axios.post<Lesson>(`${API_URL}/lessons`, formData, { headers: getAuthHeaders() });
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
       }
-      throw new Error('Dərsi yaratmaq mümkün olmadı');
+      throw new Error('Dərs yaratmaq mümkün olmadı');
     }
   },
 
@@ -73,11 +84,11 @@ export const lessonService = {
       if (data.title) formData.append('title', data.title);
       if (data.description) formData.append('description', data.description);
       if (data.video) formData.append('video', data.video);
-      if (data.order) formData.append('order', data.order.toString());
+      if (data.order) formData.append('order', String(data.order));
       if (data.content) formData.append('content', data.content);
       if (data.courseId) formData.append('courseId', data.courseId);
 
-      const response = await apiClient.put<Lesson>(`/lessons/${id}`, formData);
+      const response = await axios.put<Lesson>(`${API_URL}/lessons/${id}`, formData, { headers: getAuthHeaders() });
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -89,7 +100,7 @@ export const lessonService = {
 
   async deleteLesson(id: string): Promise<void> {
     try {
-      await apiClient.delete(`/lessons/${id}`);
+      await axios.delete(`${API_URL}/lessons/${id}`, { headers: getAuthHeaders() });
     } catch (error: any) {
       if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
@@ -100,7 +111,7 @@ export const lessonService = {
 
   async markLessonAsWatched(courseId: string, lessonId: string): Promise<void> {
     try {
-      await apiClient.post(`/courses/${courseId}/lessons/${lessonId}/watch`);
+      await axios.post(`${API_URL}/student/courses/${courseId}/lessons/${lessonId}/watch`, {}, { headers: getAuthHeaders() });
     } catch (error: any) {
       if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
@@ -111,7 +122,7 @@ export const lessonService = {
 
   async getLessonProgress(courseId: string): Promise<{ [key: string]: boolean }> {
     try {
-      const response = await apiClient.get<{ [key: string]: boolean }>(`/courses/${courseId}/lessons/progress`);
+      const response = await axios.get<{ [key: string]: boolean }>(`${API_URL}/student/courses/${courseId}/lessons/progress`, { headers: getAuthHeaders() });
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
@@ -123,19 +134,19 @@ export const lessonService = {
 
   async getLessonsByCourse(courseId: string): Promise<Lesson[]> {
     try {
-      const response = await apiClient.get<Lesson[]>(`/courses/${courseId}/lessons`);
+      const response = await axios.get<Lesson[]>(`${API_URL}/courses/${courseId}/lessons`, { headers: getAuthHeaders() });
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
         throw new Error(error.response.data.message);
       }
-      throw new Error('Kursun dərslərini yükləmək mümkün olmadı');
+      throw new Error('Kurs dərslərini yükləmək mümkün olmadı');
     }
   },
 
   async getLessonById(courseId: string, lessonId: string): Promise<Lesson> {
     try {
-      const response = await apiClient.get<Lesson>(`/courses/${courseId}/lessons/${lessonId}`);
+      const response = await axios.get<Lesson>(`${API_URL}/courses/${courseId}/lessons/${lessonId}`, { headers: getAuthHeaders() });
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.message) {
