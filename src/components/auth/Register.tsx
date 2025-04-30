@@ -39,7 +39,7 @@ const Register: React.FC = () => {
         group: 0,
         sector: 0
       };
-      
+
       await register(registrationData);
       navigate('/auth-code', { state: { email: formData.email } });
     } catch (err: any) {
@@ -133,16 +133,16 @@ const Register: React.FC = () => {
               />
             </div>
           </div>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="submit-button"
             disabled={isLoading}
           >
             {isLoading ? 'Yüklənir...' : 'Davam et'}
           </button>
           <div className="auth-links">
-            <span>Hesabın var? </span>
-            <Link to="/login">Daxil ol</Link>
+            <span >Hesabın var? </span>
+              <Link to="/login">Daxil ol</Link>
           </div>
         </form>
       </div>

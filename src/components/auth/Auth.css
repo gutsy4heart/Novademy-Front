@@ -92,13 +92,14 @@
   top: 2rem;
   right: 2rem;
   text-align: right;
+  color: white;
 }
 
 .auth-links a {
   color: white;
   text-decoration: none;
   margin: 0 0.5rem;
-  font-size: 0.9rem;
+
 }
 
 .auth-links a:hover {
