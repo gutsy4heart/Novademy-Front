@@ -109,16 +109,37 @@
 .phone-input-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.phone-input-container select {
-  width: 80px;
-  flex-shrink: 0;
+.country-code {
+  background: white;
+  padding: 0.75rem 0.5rem;
+  color: #333;
+  font-weight: 500;
+  border-right: 1px solid #e0e0e0;
+  min-width: 65px;
+  text-align: center;
 }
 
 .phone-input-container input {
-  flex-grow: 1;
+  border: none;
+  border-radius: 0;
+  padding-left: 0.75rem;
+  flex: 1;
+  font-size: 1rem;
+}
+
+.phone-input-container input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Add this to the parent form-group when input is focused */
+.form-group:focus-within .phone-input-container {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
 }
 
 .image-preview {

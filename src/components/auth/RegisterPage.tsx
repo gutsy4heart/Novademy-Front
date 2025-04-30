@@ -4,8 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { SectorType, UserRole } from '../../api/authService';
 import './Auth.css';
 
-const phonePrefixes = ["050", "051", "055", "070", "077"];
-
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +20,6 @@ const RegisterPage: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const { register, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [phonePrefix, setPhonePrefix] = useState(phonePrefixes[0]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,59 +34,61 @@ const RegisterPage: React.FC = () => {
     }
   };
 
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+    
+    // Limit to 9 digits (excluding country code)
+    if (value.length > 9) {
+      value = value.slice(0, 9);
+    }
+    
+    // Format the phone number as shown in the image
+    if (value.length > 0) {
+      let formattedNumber = '';
+      if (value.length <= 2) {
+        formattedNumber = value;
+      } else if (value.length <= 5) {
+        formattedNumber = `${value.slice(0, 2)} ${value.slice(2)}`;
+      } else if (value.length <= 7) {
+        formattedNumber = `${value.slice(0, 2)} ${value.slice(2, 5)} ${value.slice(5)}`;
+      } else {
+        formattedNumber = `${value.slice(0, 2)} ${value.slice(2, 5)} ${value.slice(5, 7)} ${value.slice(7)}`;
+      }
+      setPhoneNumber(formattedNumber);
+    } else {
+      setPhoneNumber('');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
-    // Базовая валидация
-    if (!username || !password || !firstName || !lastName || !email || !phoneNumber) {
-      setFormError('Zəhmət olmasa bütün sahələri doldurun');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setFormError('Şifrələr uyğun gəlmir');
-      return;
-    }
-
-    if (password.length < 6) {
-      setFormError('Şifrə ən azı 6 simvoldan ibarət olmalıdır');
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setFormError('Düzgün e-poçt ünvanı daxil edin');
-      return;
-    }
-
-    if (!/^\+?[0-9]{10,15}$/.test(phoneNumber.replace(/\s/g, ''))) {
-      setFormError('Düzgün telefon nömrəsi daxil edin');
+    // Validate phone number format
+    const cleanPhoneNumber = phoneNumber.replace(/\s/g, '');
+    if (!/^\d{9}$/.test(cleanPhoneNumber)) {
+      setFormError('Düzgün telefon nömrəsi daxil edin (9 rəqəm)');
       return;
     }
 
     try {
-      console.log("Submitting registration form", { 
-        username, password, firstName, lastName, email, phoneNumber, roleId, group, sector, profilePicture: !!profilePicture 
-      });
-      
+      // Send the phone number without spaces and without country code
+      // Backend will add the +994 prefix
       await register({
-        username, 
-        password, 
-        firstName, 
-        lastName, 
-        email, 
-        phoneNumber: `${phonePrefix}${phoneNumber}`, 
-        roleId, 
-        group, 
-        sector, 
+        username,
+        password,
+        firstName,
+        lastName,
+        email,
+        phoneNumber: cleanPhoneNumber,
+        roleId,
+        group,
+        sector,
         profilePicture: profilePicture || undefined
       });
       
-      console.log("Registration successful");
       navigate('/dashboard');
     } catch (err: any) {
-      console.error("Registration error:", err);
-      // Показываем детальную ошибку если она есть
       setFormError(err.message || 'Qeydiyyat zamanı xəta baş verdi');
     }
   };
@@ -148,20 +147,13 @@ const RegisterPage: React.FC = () => {
           <div className="form-group">
             <label htmlFor="phoneNumber">Mobil nömrə</label>
             <div className="phone-input-container">
-              <select
-                value={phonePrefix}
-                onChange={(e) => setPhonePrefix(e.target.value)}
-              >
-                {phonePrefixes.map(prefix => (
-                  <option key={prefix} value={prefix}>{prefix}</option>
-                ))}
-              </select>
+              <div className="country-code">+994</div>
               <input
                 type="text"
                 id="phoneNumber"
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="*** ** **"
+                onChange={handlePhoneNumberChange}
+                placeholder="51 255 55 55"
                 required
               />
             </div>
