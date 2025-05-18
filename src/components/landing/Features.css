@@ -42,14 +42,14 @@
 
 .feature-icon {
   background: #F7F9FC;
-  padding: 1rem;
+  
   border-radius: 0.5rem;
   margin-right: 1rem;
 }
 
 .feature-icon img {
-  width: 32px;
-  height: 32px;
+  width: 90px;
+  height: 60px;
 }
 
 .feature-content h3 {

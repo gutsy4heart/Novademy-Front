@@ -42,7 +42,7 @@ const RegisterPage: React.FC = () => {
       value = value.slice(0, 9);
     }
     
-    // Format the phone number as shown in the image
+    // Format the phone number as shown in the images
     if (value.length > 0) {
       let formattedNumber = '';
       if (value.length <= 2) {

@@ -32,6 +32,8 @@ const LandingPage: React.FC = () => {
   );
 };
 
+// В React children - это специальный проп, который позволяет компонентам
+// передавать элементы JSX напрямую внутрь других компонентов. 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <>

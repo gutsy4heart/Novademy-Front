@@ -10,7 +10,7 @@ const Features: React.FC = () => {
       <div className="feature-cards">
         <div className="feature-card">
           <div className="feature-icon">
-            <img src="/icons/creative.svg" alt="Creative" />
+            <img src="https://blog.discmakers.com/wp-content/uploads/2018/03/Creativity_Facebook.jpg" alt="Creative" />
           </div>
           <div className="feature-content">
             <h3>Maraqlı və yaradıcı dərslər</h3>
